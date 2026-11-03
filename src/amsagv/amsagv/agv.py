@@ -157,8 +157,8 @@ def main():
             # The encoder wraps every 8192 ticks (one turn); wrap_to_pi() handles that.
             param_heading_offset = node.declare_parameter('heading_offset', 4660).value
             # D = distance from the REAR (passive) axle to the swivel joint of the front cart, in m
-            # (TODO: measure with a ruler)
-            param_joint_dist = node.declare_parameter('joint_dist', 0.12).value
+            # (measured: 120.7 mm, matches the magv.pdf drawing)
+            param_joint_dist = node.declare_parameter('joint_dist', 0.1207).value
 
             # Debug state
             param_debug = node.declare_parameter('debug', True).value # Print odometry

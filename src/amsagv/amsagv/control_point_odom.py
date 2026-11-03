@@ -72,7 +72,7 @@ def main():
         param_w_max = node.declare_parameter('w_max', 2.0).value    # rad/s
         param_tol = node.declare_parameter('tol', 0.02).value       # Goal tolerance, m
         # Distance from the rear axle to the swivel joint (same as in agv.py)
-        param_d = node.declare_parameter('joint_dist', 0.12).value
+        param_d = node.declare_parameter('joint_dist', 0.1207).value
         param_debug = node.declare_parameter('debug', True).value
 
         msg_cmd_vel = Twist()

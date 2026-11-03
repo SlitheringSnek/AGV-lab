@@ -41,7 +41,7 @@ Findings:
 | Cart encoder resolution | cart turned ±90° by hand: ΔH ≈ +2040 / −2068 | **8192 ticks/turn** (13-bit), 1303.8 ticks/rad |
 | Cart straight (zero) | `H` with cart straight | **4660**; `H` wraps every 8192, the value repeats after a full turn |
 | Distance between driven wheels | 360° cart rotation: dsR − dsL = 0.306 m → 0.306/2π; ruler: 49 mm centre to centre | **L = 0.0487 m** |
-| Rear axle → swivel joint | – | **D = 0.12 m (guess, TODO: measure)** |
+| Rear axle → swivel joint | ruler, rear axle to swivel joint (matches the 120.7 mm in `magv.pdf`) | **D = 0.1207 m** |
 
 Notes:
 - An earlier 70 cm run gave ~119 000 ticks/m, but that run ended with a disturbance, so it was not used.
@@ -116,8 +116,7 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard ...
 - Target in the odom frame: `-p x_ref:=0.4 -p y_ref:=0.2`.
 
 ### Open items / next session
-1. Measure `D` (rear axle → swivel joint) and set `joint_dist` in `agv` and `control_point_odom`.
-2. Re-test odometry with the corrected model (straight run, curves, RViz against the cyan model).
-3. Test line following: check `sign`, tune `kp`/`kd`.
-4. Test `control_point_odom`.
-5. Optional: correct the wheel-diameter mismatch (UMBmark).
+1. Re-test odometry with the corrected model (straight run, curves, RViz against the cyan model).
+2. Test line following: check `sign`, tune `kp`/`kd`.
+3. Test `control_point_odom`.
+4. Optional: correct the wheel-diameter mismatch (UMBmark).
