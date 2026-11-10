@@ -6,7 +6,7 @@ from amsagv.ams import Node, qos_cmd, qos_sensor
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from amsagv.ams import msg_to_pose, wrap_to_pi
-from math import sin, cos, atan2, sqrt, degrees
+from math import sin, cos, atan2, sqrt, degrees, radians, copysign
 
 
 
@@ -41,13 +41,22 @@ def main():
         else:
             # Turn towards the goal; drive forward only when roughly facing it
             ws = param_kw * alpha
-            vs = param_kv * dist * max(0.0, cos(alpha))
-            # Saturation
+            vs = min(param_kv * dist * max(0.0, cos(alpha)), param_v_max)
+            # Cart-angle limit: never let the cart fold round (|gamma| -> 180 deg jams the robot).
+            # At the limit, instead of turning the cart further, creep forward and hold gamma, so
+            # the body follows the cart around the tightest arc. Hold term:
+            #   d(gamma)/dt = ws - vs*sin(gamma)/D  ->  ws = vs*sin(gamma)/D - kg*(gamma excess)
+            if abs(gamma) > param_gamma_max and ws * gamma > 0.0:
+                vs = max(vs, param_v_turn)
+                excess = gamma - copysign(param_gamma_max, gamma)
+                ws = vs * sin(gamma) / param_d - param_kg * excess
+            # Saturation (vs is already limited above, the gamma-hold term needs the real vs)
             vs = min(vs, param_v_max)
             ws = max(-param_w_max, min(param_w_max, ws))
 
         if param_debug:
-            print(f'cart: x={xc:+.3f} y={yc:+.3f} th={degrees(theta):+6.1f}° | '
+            print(f'cart: x={xc:+.3f} y={yc:+.3f} th={degrees(theta):+6.1f}° '
+                  f'gamma={degrees(gamma):+6.1f}° | '
                   f'dist={dist:.3f} alpha={degrees(alpha):+6.1f}° | vs={vs:.3f} ws={ws:+.2f}')
 
         # Velocity commands message
@@ -71,6 +80,10 @@ def main():
         param_v_max = node.declare_parameter('v_max', 0.1).value    # m/s
         param_w_max = node.declare_parameter('w_max', 2.0).value    # rad/s
         param_tol = node.declare_parameter('tol', 0.02).value       # Goal tolerance, m
+        # Cart-angle limit (deg), forward creep speed at the limit (m/s) and hold gain (1/s)
+        param_gamma_max = radians(node.declare_parameter('gamma_max', 70.0).value)
+        param_v_turn = node.declare_parameter('v_turn', 0.05).value
+        param_kg = node.declare_parameter('kg', 3.0).value
         # Distance from the rear axle to the swivel joint (same as in agv.py)
         param_d = node.declare_parameter('joint_dist', 0.1207).value
         param_debug = node.declare_parameter('debug', True).value
