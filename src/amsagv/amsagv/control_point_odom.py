@@ -32,7 +32,11 @@ def main():
         dist = sqrt(dx**2 + dy**2)
         alpha = wrap_to_pi(atan2(dy, dx) - theta)
 
-        if dist < param_tol or done:
+        # Goal reached: inside the tolerance, OR we just passed it (goal behind the cart) while
+        # still close. Otherwise a few-mm overshoot makes the robot drive a full circle back
+        # (the cart can't turn the body on the spot).
+        passed = dist < param_capture and cos(alpha) < 0.0
+        if dist < param_tol or passed or done:
             # Goal reached -> stop and stay stopped
             vs, ws = 0.0, 0.0
             if not done:
@@ -80,6 +84,8 @@ def main():
         param_v_max = node.declare_parameter('v_max', 0.1).value    # m/s
         param_w_max = node.declare_parameter('w_max', 2.0).value    # rad/s
         param_tol = node.declare_parameter('tol', 0.02).value       # Goal tolerance, m
+        # If the goal is behind the cart and closer than this, count it as reached (no circling back)
+        param_capture = node.declare_parameter('capture', 0.05).value
         # Cart-angle limit (deg), forward creep speed at the limit (m/s) and hold gain (1/s)
         param_gamma_max = radians(node.declare_parameter('gamma_max', 70.0).value)
         param_v_turn = node.declare_parameter('v_turn', 0.05).value

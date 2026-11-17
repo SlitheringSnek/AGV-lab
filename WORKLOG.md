@@ -268,9 +268,28 @@ steered the cart away from the goal, and the cart limits in both controllers wer
 ### 3. `control_point_odom` on the robot
 Goal `x_ref = 0.5, y_ref = 0.0` (swivel-joint position; at the start the joint is already at x = 0.121):
 straight, heading within ±1°, slowed down over the last 10 cm, `Goal reached ... (error 2.0 cm)` =
-stops at `tol`. Real end position: still to be measured.
+stops at `tol`.
+
+### 4. Circling at the goal, fixed
+Goal `0.3 / 0.3`: the robot reached the goal, overshot by a few mm (2.2 cm away, just outside `tol`),
+the goal was then behind the cart (`alpha` = 171°) and it drove a full ~25 cm circle to come back,
+because the cart limit (~75°) doesn't allow turning on the spot.
+**Fix:** new parameter `capture` (0.05 m): if the goal is behind the cart (`cos(alpha) < 0`) and closer
+than `capture`, the goal counts as reached.
+
+### 5. Point control measured on the floor (goal 20 cm forward, 10 cm right of the pivot)
+`x_ref = 0.32, y_ref = -0.10`: smooth right arc, no circling.
+
+| | forward | right |
+|---|---|---|
+| odometry (pivot) | 18.2 cm | 9.1 cm |
+| tape measure | 16–20 cm | 10–12 cm |
+
+→ odometry and controller agree with reality within ~2 cm. An earlier left run (73° cart angle)
+differed by ~10 cm sideways, probably measured at the cart front instead of the pivot. Not re-checked.
+
+Note: `x_ref`/`y_ref` are for the **swivel joint**, which starts at x = D = 0.121 m.
 
 ### Open items
-1. Measure the real distance of the point run (~36 cm expected); goals `0.3/0.3` and behind the robot.
-2. Crossroads with `control_line` (`mode` left/right/center), NFC tags.
+1. Crossroads with `control_line` (`mode` left/right/center), NFC tags.
 3. Later tasks: `control_point.py` (world frame), path planning (`planning.py`), localisation.
