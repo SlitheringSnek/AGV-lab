@@ -290,6 +290,34 @@ differed by ~10 cm sideways, probably measured at the cart front instead of the 
 
 Note: `x_ref`/`y_ref` are for the **swivel joint**, which starts at x = D = 0.121 m.
 
+### 6. Line following at crossroads, `mode:=left`
+~82 cm of line with forks, never lost the line, took the left branches. In one sharp curve the
+cart reached the 60° limit for ~1.5 s, crept forward and caught the line again. `mode:=right` not run.
+
+### 7. Control to a pose (intermediate-point method from the lectures)
+New parameter `phi_ref` (deg) in `control_point_odom`: an intermediate point is put `r` behind the goal
+along `phi_ref`; drive to it, switch to the goal when closer than `ip_tol` (0.04 m), the last stretch
+is then straight in the direction `phi_ref`.
+- Simulation: the cart arrives aligned, but the body lags (it only lines up after driving a few D
+  straight): r = 0.15 → body error up to 52°, 0.25 → 27°, 0.35 → 11°. Default **r = 0.30**.
+- Robot, `x_ref=0.6 y_ref=0.2 phi_ref=0` (side step): pivot measured 48 cm forward / 23 cm left
+  (goal 48 / 20), body ~7° at the end.
+- Robot, `x_ref=0.5 y_ref=0.3 phi_ref=90`: straight to (0.5, 0), 90° left turn, straight to the goal.
+  Error 2 cm, cart heading 90.9°, body 78.5° (−11.5°, matches the simulation).
+- **Gotcha:** restart `agv` before every run. One run started from the end pose of the previous one,
+  so the intermediate point was behind the robot → big loop, body 68° instead of 90°.
+
+### 8. Sequence of points
+New parameter `points` = `[x1, y1, x2, y2, ...]`: the robot drives through all points without stopping
+(switches at `ip_tol`, full speed) and stops at the last one. Can be combined with `phi_ref`.
+Simulation of `[0.42, 0.15, 0.72, -0.15]` (left, then right): P1 passed at 3.9 cm, goal 2 cm,
+max cart angle 45°. **Not run on the robot yet.**
+
+### 9. PC `~/ros/setup.bash` was overwritten
+At 14:49 the PC's `~/ros/setup.bash` was overwritten with a robot log (probably saved into the wrong
+file in the editor), so new PC terminals had no ROS settings. Restored (same as the robot's file, but
+`ZENOH_CONFIG_OVERRIDE` stays commented out: the PC runs its own router connected to the lab).
+
 ### Open items
 1. Crossroads with `control_line` (`mode` left/right/center), NFC tags.
 3. Later tasks: `control_point.py` (world frame), path planning (`planning.py`), localisation.
