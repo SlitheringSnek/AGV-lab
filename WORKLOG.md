@@ -292,7 +292,15 @@ Note: `x_ref`/`y_ref` are for the **swivel joint**, which starts at x = D = 0.12
 
 ### 6. Line following at crossroads, `mode:=left`
 ~82 cm of line with forks, never lost the line, took the left branches. In one sharp curve the
-cart reached the 60° limit for ~1.5 s, crept forward and caught the line again. `mode:=right` not run.
+cart reached the 60° limit for ~1.5 s, crept forward and caught the line again.
+`mode:=right`: works too (user check on the track, log not saved).
+
+### 6b. NFC tags
+`tag_reader` (robot) + `tag_beep` (PC): beeps and IDs arrive on the PC, each tag once per pass.
+IDs read: 584182905652 (= tag 17), 584183561018 (= tag 16), **584185199377 = not in `MTAG`**: in
+`world.py` it is only a comment next to tag 16 (`# Alternative tag`), so `control_line` prints `-> None`
+for it. Matters for path planning (actions are triggered by tag ids). Ask the lab assistant whether
+it belongs to node 16, then add `584185199377: 16,` to `MTAG`.
 
 ### 7. Control to a pose (intermediate-point method from the lectures)
 New parameter `phi_ref` (deg) in `control_point_odom`: an intermediate point is put `r` behind the goal
