@@ -311,7 +311,10 @@ is then straight in the direction `phi_ref`.
 New parameter `points` = `[x1, y1, x2, y2, ...]`: the robot drives through all points without stopping
 (switches at `ip_tol`, full speed) and stops at the last one. Can be combined with `phi_ref`.
 Simulation of `[0.42, 0.15, 0.72, -0.15]` (left, then right): P1 passed at 3.9 cm, goal 2 cm,
-max cart angle 45°. **Not run on the robot yet.**
+max cart angle 45°.
+Robot, same points: diagonal left (cart heading +25…+30°, geometry +27°), passed P1 at 3.9 cm without
+stopping, turned right (cart −49° max), diagonal to P2 (−42…−48°, geometry −45°), stopped 2.0 cm before
+P2: pivot 59 cm forward / 14 cm right of the start (goal 60 / 15, odometry).
 
 ### 9. PC `~/ros/setup.bash` was overwritten
 At 14:49 the PC's `~/ros/setup.bash` was overwritten with a robot log (probably saved into the wrong
