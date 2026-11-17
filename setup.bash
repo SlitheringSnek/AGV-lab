@@ -18,3 +18,7 @@ ros2() {
         command ros2 "$@"
     fi
 }
+#export ROS2_EASY_MODE=10.8.134.137
+# Connect this robot's ROS nodes to the lab Zenoh router (otherwise the PC can't see them)
+export ZENOH_CONFIG_OVERRIDE='connect/endpoints=["tcp/10.8.134.137:7447"]'
+export RMW_IMPLEMENTATION=rmw_zenoh_cpp

@@ -245,3 +245,32 @@ Parameters of `control_line`: `v` (0.05), `kp` (1.5), `kd` (0.0), `w_max` (1.5),
 5. `control_point_odom --ros-args -p x_ref:=0.5`, then `0.3 0.3`, then a goal behind (`-0.3 0.0`).
 6. Later task: implement `planning.py` (`find_path`, `generate_actions`), then `control_line` follows
    `path_actions` automatically.
+
+---
+
+## 2026-11-17 – Network fix, cart-angle sign, first point-control run on the robot
+
+### 1. Robot not reachable from the PC (Zenoh)
+ROS now uses `rmw_zenoh_cpp`. The PC's router is connected to the lab router `10.8.134.137`, but the
+robot's nodes weren't, so teleop/RViz on the PC never reached `/klemen/agv`.
+**Fix:** enabled `export ZENOH_CONFIG_OVERRIDE='connect/endpoints=["tcp/10.8.134.137:7447"]'` in the
+robot's `~/ros/setup.bash`. Every robot terminal must `source ~/ros/setup.bash` again.
+The `WARN ... Unable to connect to any locator ... [::1]` lines at startup are harmless.
+
+### 2. Cart angle had the wrong sign
+Teleop `j` (`w > 0`) turned the cart and `gamma` went 0 → −111°. ROS convention and both controllers
+need `gamma` to increase with `w > 0` (counter-clockwise). The first day's 360° test showed the same.
+**Fix:** new parameter `heading_sign`, default **−1.0** in `agv.py`. Verified: `j` → `gamma` +65°.
+Consequences of the old sign: wrong body rotation in odometry on curves, `control_point_odom`
+steered the cart away from the goal, and the cart limits in both controllers were reversed.
+(The wheel scale still checks out: wheels predicted 105° of cart rotation, the encoder measured 112°.)
+
+### 3. `control_point_odom` on the robot
+Goal `x_ref = 0.5, y_ref = 0.0` (swivel-joint position; at the start the joint is already at x = 0.121):
+straight, heading within ±1°, slowed down over the last 10 cm, `Goal reached ... (error 2.0 cm)` =
+stops at `tol`. Real end position: still to be measured.
+
+### Open items
+1. Measure the real distance of the point run (~36 cm expected); goals `0.3/0.3` and behind the robot.
+2. Crossroads with `control_line` (`mode` left/right/center), NFC tags.
+3. Later tasks: `control_point.py` (world frame), path planning (`planning.py`), localisation.

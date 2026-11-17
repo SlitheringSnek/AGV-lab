@@ -60,7 +60,7 @@ def main():
             # Pose (x, y, phi) is the middle of the rear axle.
 
             # Front-cart angle relative to the AGV body (positive = turned left)
-            gamma = wrap_to_pi((enc_heading - param_heading_offset) / HEADING_TICKS_PER_RAD)
+            gamma = param_heading_sign * wrap_to_pi((enc_heading - param_heading_offset) / HEADING_TICKS_PER_RAD)
 
             # Travelled distance of the front cart (middle between the driven wheels)
             ds_s = (ds_right + ds_left) / 2.0
@@ -156,6 +156,11 @@ def main():
             # Heading-encoder value when the front cart is straight.
             # The encoder wraps every 8192 ticks (one turn); wrap_to_pi() handles that.
             param_heading_offset = node.declare_parameter('heading_offset', 4660).value
+            # Sign of the cart angle: gamma must be POSITIVE when the cart turns counter-clockwise
+            # (seen from above), i.e. the direction teleop 'j' (angular.z > 0) turns it.
+            # Measured 2026-11-17: teleop 'j' (w > 0) turned the cart and H went DOWN
+            # (gamma 0 -> -111 deg without the sign), so the sign is -1.
+            param_heading_sign = node.declare_parameter('heading_sign', -1.0).value
             # D = distance from the REAR (passive) axle to the swivel joint of the front cart, in m
             # (measured: 120.7 mm, matches the magv.pdf drawing)
             param_joint_dist = node.declare_parameter('joint_dist', 0.1207).value
